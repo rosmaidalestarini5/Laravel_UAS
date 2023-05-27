@@ -7,5 +7,5 @@ Prodi : Sistem Informasi
 dalam repository ini terdapat file project tugas yang sudah jadi
 dan sekaligus terdapat file database untuk dilakukan pengecekan CRUD nya
 
-# Folder Project Laravel = Tugas_laravel
-# Folder Database Laravel = Tugas_laravel.sql
+# Project Laravel = Tugas_laravel
+# Database Laravel = Tugas_laravel.sql
