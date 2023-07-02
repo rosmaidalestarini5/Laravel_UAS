@@ -35,28 +35,12 @@
         <div class="col-4 pizza-card pizza-primary">
             <div class="row" style="padding-left:5px;padding-right:20px">
                 <div class="col">
-                    Presentase Pembeli
+                    Pembeli Terbanyak
                 </div>
                 <div class="col">
                     {{ $peminat_50 == null ? '-' : number_format($peminat_50,2) }}
                     /{{ number_format($peminat_semua,2) }}
                 </div>
-            </div>
-        </div>
-        <div class="col-4 pizza-card pizza-primary">
-            <div class="col">
-                Pengunjung terakhir
-            </div>
-            <div class="col">
-                {{ $order_minggu_terakhir }}
-            </div>
-        </div>
-        <div class="col-4 pizza-card pizza-primary">
-            <div class="col">
-                Lain-Lain
-            </div>
-            <div class="col">
-                {{ $order_bulan_ini }}
             </div>
         </div>
         <div class="row">
