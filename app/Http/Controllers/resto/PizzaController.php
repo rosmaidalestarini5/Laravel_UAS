@@ -5,8 +5,8 @@ namespace App\Http\Controllers\resto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Pizza;
-use Laravel\Ui\ControllersCommand;
-class PizzaController extends ControllersCommand
+use App\Http\Controllers\Controller;
+class PizzaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -43,20 +43,20 @@ class PizzaController extends ControllersCommand
     {
         //
         Validator::make($request->all(), [
-            'nama_pizza' => 'required',
-            'harga_satuan' => 'required|numeric'
+                'nama_pizza' => 'required',
+                'harga_satuan' => 'required|numeric'
             ], [
-            'nama_pizza.required' => 'Nama pizza harus diisi!',
-            'harga_satuan.required' => 'Harga satuan harus diisi!',
-            'harga_satuan.numeric' => 'Harga satuan harus berupa angka!'
+                'nama_pizza.required' => 'Nama pizza harus diisi!',
+                'harga_satuan.required' => 'Harga satuan harus diisi!',
+                'harga_satuan.numeric' => 'Harga satuan harus berupa angka!'
             ])->validate();
             try{
-            $pizza = new Pizza();
-            $pizza->nama_pizza = $request->nama_pizza;
-            $pizza->harga_satuan = $request->harga_satuan;
-            $pizza->save();
+                $pizza = new Pizza();
+                $pizza->nama_pizza = $request->nama_pizza;
+                $pizza->harga_satuan = $request->harga_satuan;
+                $pizza->save();
             }catch(\Exception $e){
-            return redirect()->back()->withInput()->withErrors(['msg' => $e->getMessage()]);
+                return redirect()->back()->withInput()->withErrors(['msg' => $e->getMessage()]);
             }
             return redirect('/resto/pizza')->with('success', 'Berhasil tambah data');
     }
@@ -82,7 +82,7 @@ class PizzaController extends ControllersCommand
     {
         //
         $pizza = Pizza::find($id);
-        return view('resto.pizza.edit', compact(['pizza']));
+        return view('resto.pizza.edit', compact(['pizzas']));
     }
 
     /**
@@ -96,20 +96,20 @@ class PizzaController extends ControllersCommand
     {
         //
         Validator::make($request->all(), [
-            'nama_pizza' => 'required',
-            'harga_satuan' => 'required|numeric'
+                'nama_pizza' => 'required',
+                'harga_satuan' => 'required|numeric'
             ], [
-            'nama_pizza.required' => 'Nama pizza harus diisi!',
-            'harga_satuan.required' => 'Harga satuan harus diisi!',
-            'harga_satuan.numeric' => 'Harga satuan harus berupa angka!'
+                'nama_pizza.required' => 'Nama pizza harus diisi!',
+                'harga_satuan.required' => 'Harga satuan harus diisi!',
+                'harga_satuan.numeric' => 'Harga satuan harus berupa angka!'
             ])->validate();
             try{
-            $pizza = Pizza::find($id);
-            $pizza->nama_pizza = $request->nama_pizza;
-            $pizza->harga_satuan = $request->harga_satuan;
-            $pizza->save();
+                $pizza = Pizza::find($id);
+                $pizza->nama_pizza = $request->nama_pizza;
+                $pizza->harga_satuan = $request->harga_satuan;
+                $pizza->save();
             }catch(\Exception $e){
-            return redirect()->back()->withInput()->withErrors(['msg' => $e->getMessage()]);
+                return redirect()->back()->withInput()->withErrors(['msg' => $e->getMessage()]);
             }
             return redirect('/resto/pizza')->with('success', 'Berhasil ubah data');
     }
@@ -124,11 +124,36 @@ class PizzaController extends ControllersCommand
     {
         //
         try{
-            $pizza = Pizza::find($id);
-            $pizza->delete();
+            $pizzas = Pizza::find($id);
+            $pizzas->delete();
             }catch(\Exception $e){
-            return redirect()->back()->withInput()->withErrors(['msg' => $e->getMessage()]);
+                return redirect()->back()->withInput()->withErrors(['msg' => $e->getMessage()]);
             }
             return redirect('/resto/pizza')->with('success', 'Berhasil hapus data');
     }
+
+    public function postimage($id, Request $request){
+        validator::make($request->all(), [
+            'pizza_url' => 'required'
+        ], [
+            'pizza_url.required' => 'Gambar pizza harus diisi'
+        ])->validate();
+        $recently_upload = '';
+        try{
+            $pizza = Pizza::find($id);
+            $recently_upload = $request->file('pizza_url')->store('pizza_resources');
+            $pizza->pizza_url = $recently_upload;
+            $pizza->save();
+        }catch(\Exception $e){
+            return back()->withInput()->withErrors(['msg' => $e->getMessage()]);
+        }
+        return redirect('/resto/pizza')->with('success', 'Berhasil tambah gambar');
+    }
+
+    //getImage
+    public function getimage($id){
+        $pizza = Pizza::find($id);
+        return view('resto.pizza.image', compact('pizza'));
+        }
+    
 }

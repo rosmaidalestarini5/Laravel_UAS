@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use Laravel\Ui\ControllersCommand;
-class UserController extends ControllersCommand
+use App\Http\Controllers\Controller;
+class UserController extends Controller
 {
     /**
      * Display a listing of the resource.

@@ -3,17 +3,46 @@
 namespace App\Http\Controllers\kurir;
 
 use Illuminate\Http\Request;
-use Laravel\Ui\ControllersCommand;
+use App\Http\Controllers\Controller;
+use App\Models\Jual;
+use App\Models\JualDetail;
+use App\Models\AlamatKirim;
+use App\Models\Users;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
-class HomeController extends ControllersCommand
+class HomeController extends Controller
 {
+    Protected $_arr_status_jual = ['RESPON','SIAP','ANTAR','RATE'];
+    protected $_arr_status_jual_map = [
+        'RESPON' => ['SIAP', 'ANTAR', 'TIBA'],
+        'SIAP' => ['SIAP'],
+        'ANTAR' => ['ANTAR'],
+        'RATE' => ['TIBA']
+    ];
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return view('kurir.home.index');
+        $status_jual = $request->get('status_jual', $this->_arr_status_jual[0]);
+        $juals = Jual::whereRaw("(kurir_id=0 OR kurir_id=?) AND konsumen_rate=0 AND waktu_pesan>?", [auth()->user()->id, date('Y-m-d')])
+        ->whereIn('status_jual', $this->_arr_status_jual_map[$status_jual])->paginate();
+        foreach($juals as $cur){
+            $cur->alamat_kirim = AlamatKirim::find($cur->alamar_kirim_id);
+            $cur->jual_details = JualDetail::whereRaw("jual_id=?", [$cur->id])->get();
+        }
+        $arr_status_jual = $this->_arr_status_jual;
+        $rating_5 = Jual::whereRaw("status_jual='TIBA AND kurir_id=?", [auth()->user()->id])->orderBy('waktu_pesan', 'desc')
+        ->take(5)->avg('kurir_rate');
+        $rating_semua = Jual::whereRaw("status_jual='TIBA' AND kurir_id=?",
+        [auth()->user()->id, Carbon::today()->subDays(6),
+        Carbon::today()->addDay(1)])->count();
+        $order_bulan_ini = Jual::whereRaw("kurir_id=? AND status_juals='TIBA'
+        AND waktu_pesan>=? AND waktu_pesan<?",
+        [auth()->user()->id, Carbon::today()->firstOfMonth(), Carbon::today()->firstOfMonth()->addMonth(1)])->count();
+    return view('kurir.home.index', compact('juals', 'status_jual', 'arr_status_jual', 'rating_5', 'rating_semua','order_minggu_terakhir', 'order_bulan_ini'));
     }
 }
